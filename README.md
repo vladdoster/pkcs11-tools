@@ -1,15 +1,15 @@
-# PKCS\#11 tools
+# PKCS#11 tools
 
 pkcs11-tools is a toolkit containing a bunch of small utilities to perform key management tasks on cryptographic tokens
-implementing a PKCS\#11 interface. It features a number of commands similar to the unix CLI utilities, such as `ls`
-, `mv`, `rm`, `od`, and `more`. It also has specific commands to generate keys, generate CSRs, import certificates and
+implementing a PKCS#11 interface. It features a number of commands similar to the unix CLI utilities, such as `ls` ,
+`mv`, `rm`, `od`, and `more`. It also has specific commands to generate keys, generate CSRs, import certificates and
 other files, in a fashion compatible with most implementations, including both IBM and Oracle JVMs. It is also able to
 interface with NSS libraries from [mozilla.org](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS).
 
 Some features:
 
 - support for DES, 3DES, AES, HMAC, RSA, DSA, DH, Elliptic curves (NIST curves, Edwards curves)
-- generation of PKCS\#10 (CSR) and self-signed certificates
+- generation of PKCS#10 (CSR) and self-signed certificates
 - import of certificates, public keys, data files
 - support for wrapping and unwrapping keys, for both symmetric and asymmetric keys
 - support for templates during key creation, public key import, key wrapping and key unwrapping
@@ -17,33 +17,41 @@ Some features:
 - support for key rewrapping (i.e. key unwrapping and key wrapping)
 
 ## News
+
 ### July 2023
-Version 2.6 brings support for the AWS CloudHSM platform, library version 5.9.
-Limitations are:
- - Certificates are not supported by the platform, therefore any command handling certificates will fail
- - Changing attributes values is not supported by the platform; several commands rely on that capability to adjust `CKA_ID` accross objects. These commands may occasionally report an error when executed; key material is usually created.
- - For the same reason, `p11mv` and `p11setattr`  will not operate on this platform.
- - The platform does not allow for duplicate `CKA_ID` attributes, which occasionally brings issues when generating key material. This will be adjusted in a later release.
- - `p11od` command will not work, due to the way CloudHSM handles attributes.
- - When using wrapped key files, `CKA_SIGN_RECOVER` and `CKA_VERIFY_RECOVER` are not supported, and should be commented out.
- - Wrap and unwrap templates are not supported by this platform. These should also be commented out in wrapped key files.
-AWS CloudHSM support is disabled by default; please refer to [installation instructions](docs/INSTALL.md) for more details.
+
+Version 2.6 brings support for the AWS CloudHSM platform, library version 5.9. Limitations are:
+
+- Certificates are not supported by the platform, therefore any command handling certificates will fail
+- Changing attributes values is not supported by the platform; several commands rely on that capability to adjust
+  `CKA_ID` accross objects. These commands may occasionally report an error when executed; key material is usually
+  created.
+- For the same reason, `p11mv` and `p11setattr` will not operate on this platform.
+- The platform does not allow for duplicate `CKA_ID` attributes, which occasionally brings issues when generating key
+  material. This will be adjusted in a later release.
+- `p11od` command will not work, due to the way CloudHSM handles attributes.
+- When using wrapped key files, `CKA_SIGN_RECOVER` and `CKA_VERIFY_RECOVER` are not supported, and should be commented
+  out.
+- Wrap and unwrap templates are not supported by this platform. These should also be commented out in wrapped key files.
+  AWS CloudHSM support is disabled by default; please refer to [installation instructions](docs/INSTALL.md) for more
+  details.
 
 ### June 2023
+
 Version 2.6, introduces support for JWK - JOSE Web Key output (RFC 7517) on the `p11keygen`, `p11wrap`, and `p11rewrap`
 commands. The JWK format is not supported for importing keys.
 
 ### October 2021
 
-Version 2.5, that brings support for `CKA_ALLOWED_MECHANISMS`, on many key management commands: `p11keygen`, `p11wrap`
-, `p11unwrap`, `p11rewrap`, `p11od`, `p11ls`. Note that the wrapped key grammar has changed; the grammar version number
+Version 2.5, that brings support for `CKA_ALLOWED_MECHANISMS`, on many key management commands: `p11keygen`, `p11wrap` ,
+`p11unwrap`, `p11rewrap`, `p11od`, `p11ls`. Note that the wrapped key grammar has changed; the grammar version number
 has been incremented to `2.2`.
 
 ### July 2021
 
-Version 2.4, to support templates in many commands: `p11keygen`, `p11importpubk`, `p11wrap`, `p11unwrap`, `p11od`
-, `p11ls`. Keys created with a template can be wrapped, the template attributes will be carried. Note that the wrapped
-key grammar has changed, and the grammar version number has been incremented to `2.1`.
+Version 2.4, to support templates in many commands: `p11keygen`, `p11importpubk`, `p11wrap`, `p11unwrap`, `p11od` ,
+`p11ls`. Keys created with a template can be wrapped, the template attributes will be carried. Note that the wrapped key
+grammar has changed, and the grammar version number has been incremented to `2.1`.
 
 ### April 2021
 
@@ -74,21 +82,23 @@ The toolkit has reached v2.0. It features several major changes:
 
 ## Introduction
 
-Ensure the prerequisites listed in the [Install Document](https://github.com/Mastercard/pkcs11-tools/blob/master/docs/INSTALL.md) are installed before proceeding
+Ensure the prerequisites listed in the
+[Install Document](https://github.com/Mastercard/pkcs11-tools/blob/master/docs/INSTALL.md) are installed before
+proceeding
 
 To build the source code, simply execute (with appropriate privileges)
 
 ```bash
-$ ./bootstrap.sh
-$ ./configure
-$ make install
+./bootstrap.sh
+./configure
+make install
 ```
 
 To list the methods available on a PKCS#11 token, use `p11slotinfo`, that will return the list of available mechanisms,
 together with allowed APIs.
 
 ```bash
-$ using PKCS11LIB at /opt/softhsm2-devel/lib/softhsm/libsofthsm2.so
+using PKCS11LIB at /opt/softhsm2-devel/lib/softhsm/libsofthsm2.so
 PKCS#11 Library
 ---------------
 Name        : /opt/softhsm2-devel/lib/softhsm/libsofthsm2.so
@@ -171,18 +181,18 @@ data/dhparam                          tok,prv,
 
 To avoid specifying command line arguments, environment variables can be specified for the following items:
 
-|optional arg|description                        |environment variable|
-|------------|-----------------------------------|--------------------|
-| `-l`       |path to library                    |`PKCS11LIB`         |
-| `-m`       |path to NSS keystore (for NSS only)|`PKCS11NSSDIR`      |
-| `-s`       |slot index number                  |`PKCS11SLOT`        |
-| `-t`       |token name                         |`PKCS11TOKEN`       |
-| `-p`       |token password                     |`PKCS11PASSWORD`    |
+| optional arg | description                         | environment variable |
+| ------------ | ----------------------------------- | -------------------- |
+| `-l`         | path to library                     | `PKCS11LIB`          |
+| `-m`         | path to NSS keystore (for NSS only) | `PKCS11NSSDIR`       |
+| `-s`         | slot index number                   | `PKCS11SLOT`         |
+| `-t`         | token name                          | `PKCS11TOKEN`        |
+| `-p`         | token password                      | `PKCS11PASSWORD`     |
 
 To extract the value of a non-sensitive object, use `p11cat`:
 
 ```bash
-$ p11cat pubk/rsa
+p11cat pubk/rsa
 -----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2zd+HKrd1u7TBMfvlpO2
 1eT8uoY+aLw6/yT9treLk67czyA6XQ8NMtspacgxLXbC0XbaObGJDOswFN2o+zjA
@@ -197,7 +207,10 @@ rQIDAQAB
 To see an object's value, use `p11more`:
 
 ```bash
-$ p11more cert/rootca
+p11more cert/rootca
+```
+
+```
 Certificate:
 	Data:
 		Version: 3 (0x2)
@@ -221,7 +234,10 @@ Certificate:
 Moreover, `p11od`can be used to extract all attribute values from an object:
 
 ```bash
-$ p11od pubk/dh
+p11od pubk/dh
+```
+
+```
 pubk/dh:
  CKA_CLASS:
   0000  02 00 00 00 00 00 00 00                          CKO_PUBLIC_KEY
@@ -241,7 +257,7 @@ pubk/dh:
 Generating a key is easy: just use `p11keygen` with the proper arguments.
 
 ```bash
-$ p11keygen -k ec -q prime256v1 -i my-ec-key sign=true verify=true
+p11keygen -k ec -q prime256v1 -i my-ec-key sign=true verify=true
 Generating, please wait...
 key generation succeeded
 ```
@@ -285,8 +301,8 @@ AiEA6LfASbx3jZQpGGaPnWpizfCERolzkxHYZ5iVEhxT918CIEq2mP1mvnx/0QIH
 -----END CERTIFICATE REQUEST-----
 ```
 
-Later, `p11importcert` can be used to import the certificate back to the keystore. Public keys can be imported
-using `p11importpubk`, and data files with `p11importdata`.
+Later, `p11importcert` can be used to import the certificate back to the keystore. Public keys can be imported using
+`p11importpubk`, and data files with `p11importdata`.
 
 If you need to wrap or unwrap a key, you can use the command `p11wrap`:
 
@@ -305,8 +321,8 @@ key unwrapping succeeded
 ## Installation
 
 The project can compile on many platforms, including Linux, AIX, Solaris. Using cross-compilers, it is also possible to
-compile for the Windows platform. Compilation under macOS requires [brew](https://brew.sh/). Please refer
-to [docs/INSTALL.md](docs/INSTALL.md) for installation instructions.
+compile for the Windows platform. Compilation under macOS requires [brew](https://brew.sh/). Please refer to
+[docs/INSTALL.md](docs/INSTALL.md) for installation instructions.
 
 ## Manual
 
@@ -317,7 +333,8 @@ Please refer to [docs/MANUAL.md](docs/MANUAL.md) for instructions / how-to guide
 If you wish to contribute to this project, please refer to the rules in [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 Contributors:
- - Georg Lippold (Mastercard, https://www.mastercard.com) - JWK output, GitHub build & CodeQL integration
+
+- Georg Lippold (Mastercard, https://www.mastercard.com) - JWK output, GitHub build & CodeQL integration
 
 ## Author
 
@@ -327,7 +344,8 @@ Eric Devolder (Mastercard, https://www.mastercard.com)
 
 Except when specified differently in source files, the following license apply:
 
----------------
+______________________________________________________________________
+
 Copyright (c) 2018 Mastercard
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the
@@ -339,4 +357,4 @@ Unless required by applicable law or agreed to in writing, software distributed 
 AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
 language governing permissions and limitations under the License.
 
------
+______________________________________________________________________
